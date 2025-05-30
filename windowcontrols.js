@@ -11,10 +11,10 @@ class WindowControls {
   static cssTopBarPersistentLeftStart = -5;
   static cssBottomBarLeftStart = 250;
 
-  static getTaskbarTop = () => 2;
-  static getTaskbarBot = () => $("#board").height() - 40;
+  static getTaskbarTop = () => 4;
+  static getTaskbarBot = () => $("#board").height() - 36;
 
-  static debouncedReload = debounce(() => window.location.reload(), 100);
+  static debouncedReload = foundry.utils.debounce(() => window.location.reload(), 100);
 
   static getStashedKeys() {
     return Object.keys(WindowControls.minimizedStash).map(w => parseInt(w));
@@ -154,7 +154,7 @@ class WindowControls {
         if (hotbarSetting === 'hidden' || (hotbarSetting === 'onlygm' && !game.user?.isGM))
           rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomBaseline - 65 + 'px');
         else
-          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomBaseline + 'px');
+          rootStyle.setProperty('--minibarbot', WindowControls.cssMinimizedBottomBaseline + 7 + 'px');
         rootStyle.setProperty('--minibartop', 'unset');
         rootStyle.setProperty('--minibarleft', WindowControls.cssBottomBarLeftStart + 'px');
         if (bar.length === 0)
@@ -185,8 +185,9 @@ class WindowControls {
       let offset;
       if (logoSetting === 'hidden' && sceneNavigationSetting === 'hidden')
         offset = WindowControls.cssMinimizedTopBaseline + 6;
-      else
-        offset = document.querySelector("#navigation").offsetHeight + WindowControls.cssMinimizedTopBaseline + 20;
+      else {
+        offset = $('#scene-navigation-active')[0].offsetHeight + WindowControls.cssMinimizedTopBaseline + 30;
+      }
       return offset;
     }
   }
@@ -357,7 +358,7 @@ class WindowControls {
 
   static reapplyMaximize(app, h, w) {
     app.setPosition({
-      width: w - (ui.sidebar._collapsed ? 50 : 325),
+      width: w - (ui.sidebar.expanded ? 360 : 60),
       height: h - 15,
       left: 10,
       top: 3
@@ -794,12 +795,12 @@ Hooks.once('setup', () => {
         if (!expectedPosition || !this.element.length)
           return expectedPosition;
         const el = this.element[0];
-        const marginMaxValue = window.innerHeight - el.offsetHeight - margin;
-        if (expectedPosition.top >= marginMaxValue) {
+        const marginMaxValue = 42;
+        if (expectedPosition.top < marginMaxValue) {
           el.style.top = marginMaxValue+'px';
           expectedPosition.top = marginMaxValue;
         }
-        const maxHeight = $("#board").height() - 42;
+        const maxHeight = $("#board").height() - marginMaxValue;
         if (expectedPosition.height > maxHeight) {
           el.style.height = maxHeight+'px';
           expectedPosition.height = maxHeight;
@@ -835,12 +836,12 @@ Hooks.once('setup', () => {
         if (!expectedPosition || !this.element.length)
           return expectedPosition;
         const el = this.element[0];
-        const marginMinValue = 42;
-        if (expectedPosition.top <= marginMinValue) {
+        const marginMinValue = 2;
+        if (expectedPosition.top > marginMinValue) {
           el.style.top = marginMinValue+'px';
           expectedPosition.top = marginMinValue;
         }
-        const maxHeight = $("#board").height() - marginMinValue;
+        const maxHeight = $("#board").height() - 42;
         if (expectedPosition.height > maxHeight) {
           el.style.height = maxHeight+'px';
           expectedPosition.height = maxHeight;
@@ -895,13 +896,13 @@ Hooks.once('ready', () => {
       if (!(game.modules.get('one-journal')?.active || app.enhancedjournal))
         WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderRollTableConfig', function (app) {
+    Hooks.on('renderRollTableSheet', function (app) {
       WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderActorSheet', function (app) {
+    Hooks.on('renderActorSheetV2', function (app) {
       WindowControls.renderDummyPanelApp(app);
     });
-    Hooks.on('renderItemSheet', function (app) {
+    Hooks.on('renderItemSheet5e', function (app) {
       WindowControls.renderDummyPanelApp(app);
     });
     Hooks.on('activateControls', function(app) {
